@@ -121,16 +121,16 @@ router.delete('/devices/:id', function (req, res, next) {
     res.status(500).send(id + ' not provisioned');
 });
 
-router.post('/devices/:id/:state', function (req, res) {
+router.post('/devices/:id/status/:status', function (req, res) {
   let id = req.params.id;
   const index = devices.findIndex(deviceId => deviceId === id);
   if (index > -1) {
     let message = new Message({
       deviceId: req.params.id,
-      status: req.params.state
+      status: req.params.status
     });
     sender(id, message)
-    res.status(200).send(id + ' status set to ' + req.params.state);
+    res.status(200).send(id + ' status set to ' + req.params.status);
   } else
     res.status(500).send(id + ' not provisioned');
 });

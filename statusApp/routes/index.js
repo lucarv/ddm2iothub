@@ -8,8 +8,8 @@ const registry = iothub.Registry.fromConnectionString(connectionString);
 var online = [];
 var all = []
 
-let qonline = "SELECT * FROM devices WHERE tags.state = 'online'";
-let qall = "SELECT * FROM devices";
+let q_online = "SELECT * FROM devices WHERE tags.state = 'online'";
+let q_all = "SELECT * FROM devices";
 
 var query1 = registry.createQuery(qonline, 100);
 var query2 = registry.createQuery(qall, 100);
@@ -50,7 +50,14 @@ var allResults = function (err, results) {
   }
 };
 
-router.get('/', (req, res) => {
+router.get('/:id', async (req, res) => {
+  const { id } = req.params
+  const { rows } = await db.query('SELECT * FROM users WHERE id = $1', [id])
+  res.send(rows[0])
+})
+
+router.get('/', async (req, res) => {
+
   res.render('index', {
     title: 'Device Status',
     devices: online
