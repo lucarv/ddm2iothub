@@ -1,0 +1,15 @@
+extends layout
+
+block content                        
+        .panel.panel-default
+            .panel-heading Device Status
+            .panel-body    
+                table.table.table-hover
+                    thead
+                        tr
+                            th Device Id
+                            th State
+                    tbody
+                        tr
+                            td= id
+                            td= status

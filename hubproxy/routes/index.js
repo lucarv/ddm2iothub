@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
+const chalk = require('chalk')
 const iothub = require('azure-iothub');
 const Gateway = require('azure-iot-multiplexing-gateway').Gateway;
 const gateway = new Gateway();
@@ -25,6 +25,7 @@ const main = () => {
 
 }
 const startgw = async function () {
+
   let name = 'startgw';
   console.time('Open tunnel took');
   try {
@@ -34,9 +35,11 @@ const startgw = async function () {
       devices.forEach((deviceId) => {
         addDevicePromises.push(gateway.addDevice(deviceId));
       });
+      console.log(chalk.blue(`${devices.length} devices already provisioned`))
       console.time('Add devices took');
       await Promise.all(addDevicePromises);
       console.timeEnd('Add devices took');
+      console.log('--------------------------------------------------------')
     }
   } catch (error) {
     console.log(`${name}: ${error}`);
@@ -50,6 +53,7 @@ const addDevice = async function (id) {
     console.time('Add new device took');
     await Promise.all(addDevicePromises);
     console.timeEnd('Add new device took');
+    console.log('--------------------------------------------------------')
   } catch (error) {
     console.log(`${name}: ${error}`);
   }
@@ -66,6 +70,7 @@ const delDevice = async function (id) {
     }
     await Promise.all(addDevicePromises);
     console.timeEnd('Delete device took');
+    console.log('--------------------------------------------------------')
   } catch (error) {
     console.log(`${name}: ${error}`);
   }
@@ -76,9 +81,11 @@ const sender = async function (device, message) {
   let name = 'sender';
   try {
     await gateway.sendMessage(device, message);
+    console.log(chalk.green(`** message sent from ${device}`))
     console.timeEnd('Send message took');
+    console.log('--------------------------------------------------------')
   } catch (error) {
-    console.log(`${name}: Could not send message to IoT Hub: ${error}`);
+    console.log(chalk.red(`** ${name}: ${error}`));
   }
 }
 
@@ -108,11 +115,9 @@ router.delete('/devices/:id', function (req, res, next) {
 
     registry.delete(id, function (err, deviceInfo) {
       if (err) {
-        res.status(500).send({
-          error: err.message
-        })
+        res.status(500).send({ error: err.message })
       } else {
-        devices.push(id);
+        devices.splice(index, 1);
         delDevice(id)
         res.status(200).send(id + ' deleted');
       }

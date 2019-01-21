@@ -1,8 +1,16 @@
-extends layout
+extends layout   
 
 block content                        
-        .panel.panel-default
-            .panel-heading #{title}
-            .panel-body    
-                each device in devices
-                    li #{device.deviceId}
+    .panel.panel-default
+        .panel-heading Device Status
+        .panel-body    
+            table.table.table-hover
+                thead
+                    tr
+                        th Device Id
+                        th State
+                tbody
+                    each device in devices
+                        tr
+                            td= device.deviceId 
+                            td= 'online'

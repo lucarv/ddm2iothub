@@ -1,16 +1,16 @@
 extends layout
 
 block content                        
-        .panel.panel-default
-            .panel-heading #{title}
-            .panel-body    
-                table.table.table-hover
-                    thead
+    .panel.panel-default
+        .panel-heading Device Status
+        .panel-body    
+            table.table.table-hover
+                thead
+                    tr
+                        th Device Id
+                        th State
+                tbody
+                    each device in devices
                         tr
-                            th Device Id
-                            th State
-                    tbody
-                        each device in devices
-                            tr
-                                td= device.deviceId 
-                                td= device.tags.state
+                            td= device.deviceId 
+                            td= device.tags.state

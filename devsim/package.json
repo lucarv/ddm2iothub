@@ -1,0 +1,16 @@
+{
+  "name": "devsim",
+  "version": "1.0.0",
+  "description": "",
+  "main": "send_telemetry.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "azure-iot-device": "^1.9.1",
+    "azure-iot-device-amqp": "^1.9.1"
+  }
+}

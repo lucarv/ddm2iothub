@@ -3,6 +3,7 @@
 /**
  * Module dependencies.
  */
+const chalk = require('chalk')
 
 var app = require('../app');
 var debug = require('debug')('hubproxy:server');
@@ -88,5 +89,6 @@ function onListening() {
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  //debug('Listening on ' + bind);
+    console.log(chalk.blue('Express server listening on port ' + server.address().port));
 }
