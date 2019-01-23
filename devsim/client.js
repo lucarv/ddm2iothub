@@ -53,7 +53,6 @@ const startTele = () => {
       ]
     }
     var message = new Message(JSON.stringify(ipso));
-    message.messageId = uuid.v4();
     console.log('Sending message: ' + message.getData());
 
     client.sendEvent(message, function (err) {

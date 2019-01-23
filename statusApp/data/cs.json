@@ -1,3 +1,3 @@
 {
-    "cs": "<YOUR IoT Hub Connection String here>"
+    "cs": "<iot hub connection string>"
 }

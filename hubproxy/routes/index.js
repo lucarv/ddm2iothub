@@ -77,6 +77,7 @@ const delDevice = async function (id) {
 };
 
 const sender = async function (device, message) {
+  console.log(message.getData())
   console.time('Send message took');
   let name = 'sender';
   try {
@@ -144,7 +145,8 @@ router.post('/messages/:id', function (req, res, next) {
   let id = req.params.id;
   const index = devices.findIndex(deviceId => deviceId === id);
   if (index > -1) {
-    let message = new Message(req.body);
+    var message = new Message(JSON.stringify(req.body));
+
     sender(id, message)
     res.status(200).send('POST message: ' + req.params.id);
   } else

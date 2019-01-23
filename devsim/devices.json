@@ -1,4 +1,4 @@
 [
-{"cs": "HostName=ericsson.azure-devices.net;DeviceId=ddm_dev_001;SharedAccessKey=6hf6+9Pg3e6dIXRJt8YWClvdXbf+DpGbkWRisxq0Mfc="
+{"cs": "HostName=ericsson.azure-devices.net;DeviceId=urn:ce408dcf-db88-4344-b690-42798d38506f:ddm-iot-hub-device;SharedAccessKey=SdE9DjMCmG0ZUElHhIQ5JuQD58LjwUDjBWRo/AdYKE8="
 }
 ]
