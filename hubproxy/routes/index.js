@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express');
 const router = express.Router();
 const chalk = require('chalk')
@@ -25,21 +26,28 @@ const main = () => {
 
 }
 const startgw = async function () {
-
   let name = 'startgw';
+  var hubname = connectionString.substring(connectionString.indexOf("=") + 1, connectionString.indexOf(";"));
+
   console.time('Open tunnel took');
   try {
     await gateway.open(connectionString);
     console.timeEnd('Open tunnel took');
+    console.log('----------------------------------------------------------------------------------------------------------------')
+
+    console.log(chalk.green(`${devices.length} devices provisioned`))
     if (devices.length > 0) {
       devices.forEach((deviceId) => {
+        console.log(deviceId)
         addDevicePromises.push(gateway.addDevice(deviceId));
       });
-      console.log(chalk.blue(`${devices.length} devices already provisioned`))
       console.time('Add devices took');
       await Promise.all(addDevicePromises);
       console.timeEnd('Add devices took');
-      console.log('--------------------------------------------------------')
+      console.log('----------------------------------------------------------------------------------------------------------------')
+
+      console.log(chalk.green(`cloud gateway started towards ${hubname}`))
+      console.log('----------------------------------------------------------------------------------------------------------------')
     }
   } catch (error) {
     console.log(`${name}: ${error}`);
@@ -53,7 +61,7 @@ const addDevice = async function (id) {
     console.time('Add new device took');
     await Promise.all(addDevicePromises);
     console.timeEnd('Add new device took');
-    console.log('--------------------------------------------------------')
+    console.log('----------------------------------------------------------------------------------------------------------------')
   } catch (error) {
     console.log(`${name}: ${error}`);
   }
@@ -70,7 +78,7 @@ const delDevice = async function (id) {
     }
     await Promise.all(addDevicePromises);
     console.timeEnd('Delete device took');
-    console.log('--------------------------------------------------------')
+    console.log('----------------------------------------------------------------------------------------------------------------')
   } catch (error) {
     console.log(`${name}: ${error}`);
   }
@@ -83,8 +91,10 @@ const sender = async function (device, message) {
   try {
     await gateway.sendMessage(device, message);
     console.log(chalk.green(`** message sent from ${device}`))
+    console.log(chalk.green(`** timestamp: ${new Date()}`))
+
     console.timeEnd('Send message took');
-    console.log('--------------------------------------------------------')
+    console.log('----------------------------------------------------------------------------------------------------------------')
   } catch (error) {
     console.log(chalk.red(`** ${name}: ${error}`));
   }
@@ -101,7 +111,13 @@ router.post('/devices/:id', function (req, res, next) {
         error: err.message
       })
     } else {
-      devices.push(device.deviceId);
+      /*
+      devices.push({
+        "id": device.deviceId,
+        "status": "OFFLINE"
+      });
+      */
+      devices.push(device.deviceId)
       addDevice(device.deviceId)
       res.status(200).send(deviceInfo.deviceId + ' created');
     }
@@ -116,7 +132,9 @@ router.delete('/devices/:id', function (req, res, next) {
 
     registry.delete(id, function (err, deviceInfo) {
       if (err) {
-        res.status(500).send({ error: err.message })
+        res.status(500).send({
+          error: err.message
+        })
       } else {
         devices.splice(index, 1);
         delDevice(id)
@@ -142,17 +160,22 @@ router.post('/devices/:id/status/:status', function (req, res) {
 });
 
 router.post('/messages/:id', function (req, res, next) {
+  console.log(chalk.green(`${new Date()}: message received`))
+
   let id = req.params.id;
   const index = devices.findIndex(deviceId => deviceId === id);
   if (index > -1) {
-    var message = new Message(JSON.stringify(req.body));
-
-    sender(id, message)
-    res.status(200).send('POST message: ' + req.params.id);
-  } else
-    res.status(500).send(id + ' not provisioned');
-});
-
+    if (index > -1) {
+      //if (devices[index].status === 'ONLINE') {
+        var message = new Message(JSON.stringify(req.body));
+        sender(id, message)
+        res.status(200).send('POST message: ' + req.params.id);
+      //} else
+        //res.status(500).send(id + ' device is offline');
+    } else
+      res.status(500).send(id + ' not provisioned');
+  }
+})
 
 main();
 

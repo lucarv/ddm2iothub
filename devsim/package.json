@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "azure-iot-device": "^1.9.1",
-    "azure-iot-device-amqp": "^1.9.1"
+    "azure-iot-device-amqp": "^1.9.1",
+    "request": "^2.88.0"
   }
 }
