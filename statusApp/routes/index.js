@@ -16,15 +16,13 @@ var online = [];
 var all = [];
 
 var onlineResults = function (err, results) {
-   online = [];
-
-  console.log('execute query')
+  online = [];
   if (err) {
     console.error('Failed to fetch the results: ' + err.message);
   } else {
     // Do something with the results
     results.forEach(function (twin) {
-      online.push(twin)
+      online.push(twin.deviceId)
     });
 
     if (query1.hasMoreResults) {
@@ -34,20 +32,19 @@ var onlineResults = function (err, results) {
 };
 
 var allResults = function (err, results) {
-     all = [];
-
-  console.log('execute query')
+  all = [];
   if (err) {
     console.error('Failed to fetch the results: ' + err.message);
   } else {
-    console.log('query executed')
     // Do something with the results
     results.forEach(function (twin) {
-      console.log(twin.deviceId)
       if (!twin.tags.hasOwnProperty('state')) {
         twin.tags.state = 'OFFLINE'
       }
-      all.push(twin)
+      all.push({
+        "id": twin.deviceId,
+        "status": twin.tags.state
+      })
     });
   }
 };
@@ -67,26 +64,13 @@ function getStatus(id) {
         console.log('error:' + err.name)
         reject(err);
       } else {
-        console.log(twin.deviceId)
-        let status = twin.tags.state;
+        console.log(twin.tags)
+        let status = (twin.tags.state == undefined) ? 'OFFLINE' : twin.tags.state;
         resolve(status);
       }
     });
   });
 }
-
-router.post('/device', async (req, res) => {
-  let id = req.body.deviceId;
-  try {
-    console.log('checking status of: ' + id);
-    deviceStatus = await getStatus(id); // ouch this is super ugly
-    console.log('deviceStatus')
-    res.render('single', { id: id, status: deviceStatus })
-  } catch (e) {
-    res.render('error', {error: e });
-  }
-
-});
 
 router.get('/:id', async (req, res) => {
   let {
@@ -100,8 +84,10 @@ router.get('/:id', async (req, res) => {
         query2.nextAsTwin(allResults);
         console.timeEnd('query registry ALL took')
 
-        await wait(500); // ouch this is super ugly
-        res.render('all', {devices: all})
+        await wait(1000); // ouch this is super ugly
+        res.status(200).send({
+          devices: all
+        });
         break;
       case 'online':
         console.time('query registry ONLINE took')
@@ -109,13 +95,17 @@ router.get('/:id', async (req, res) => {
         console.timeEnd('query registry ONLINE took')
 
         console.log('ONLINE');
-        await wait(1500); // ouch this is super ugly
-        res.render('all', {devices: online})
+        await wait(1000); // ouch this is super ugly
+        res.status(200).send({
+          devices: online
+        });
 
         break;
       default:
-        console.log('checkind status of: ' + id);
-        deviceStatus = await getStatus(id); // ouch this is super ugly
+        console.log('checking: ' + id);
+        deviceStatus = await getStatus(id);
+        console.log('status: ' + deviceStatus);
+
         res.status(200).send({
           status: deviceStatus
         })
@@ -125,30 +115,5 @@ router.get('/:id', async (req, res) => {
     console.log(`${id}: ${error}`);
   }
 })
-
-
-
-router.get('/', async (req, res) => {
-  res.render('index', {
-    title: 'Device Status',
-    devices: online
-  });
-});
-router.get('/online', (req, res) => {
-  res.render('on', {
-    title: 'Online Devices',
-    devices: online
-  });
-});
-
-router.get('/all', (req, res) => {
-  res.render('all', {
-    title: 'All Devices',
-    devices: all
-  });
-});
-
-
-
 
 module.exports = router;
